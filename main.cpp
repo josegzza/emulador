@@ -1,4 +1,5 @@
 #include <iostream>
+#include "instruccion.h"
 usign namespace std;
 
 int main()
