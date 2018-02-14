@@ -1,6 +1,6 @@
 #include <iostream>
-#include "instruccion.h"
-usign namespace std;
+#include "Instruccion.h"
+using namespace std;
 
 int main()
 {
