@@ -35,7 +35,7 @@ int main()
     cout<<"Ejemplo: HLT 0 0 "<<endl;
 
 
-//AQUI ES DONDE INICIARA EL CICLO, QUE SE DETENDRA HASTA QUE PONGA UN HLT!
+//AQUI ES DONDE INICIA EL CICLO, QUE SE DETENDRA HASTA QUE PONGA UN HLT!
     do {
         //input
         cin>>scop>>stipDir>>sdirDat;
@@ -85,7 +85,8 @@ int revisaCodigoOperacion(string scop)
 int revisaTipoDireccionamiento (string stipDir, int cop)
 {
     int itipoDir = -1;
-
+    
+    //En el caso de que sea un NOP, CLA o HLT no importa que caracter haya puesto
     if ((cop == 0) || (cop == 1) || (cop == 10))
         return itipoDir;
     else if(stipDir == "INM") { itipoDir = 0; }
@@ -109,6 +110,7 @@ int revisaDireccionDato (string sdirDat, int cop)
     bool dato = false;
     bool negativo = false;
 
+    //En el caso de que sea un NOP, CLA o HLT no importa que caracter haya puesto
     if ((cop == 0) || (cop == 1) || (cop == 10))
         return valor;
     else if(sdirDat.length() > 3)
