@@ -1,19 +1,38 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
-
-
-using namespace std;
 #include "Instruccion.h"
+using namespace std;
+
 //Declaramos 
 int revisaCodigoOperacion(string scop);
 int revisaTipoDireccionamiento (string stipDir, int cop);
 int revisaDireccionDato (string sdirDat, int cop);
+void fNOP();
+void fCLA();
+void fNEG();
+void fLDA();
+void fSTA();
+void fADD();
+void fSUB();
+
 
 void caseCodigoOperacion (int codigoOperacion);
 //Variables Globales
 bool errorInstruccion = false;
-//AQUI va la variable globar de arreglo de integers de 6 x 1000  que es la MainMemory
+int registroPC, registroAC, registroMAR, registroMDR, registroFR,i,z;
+//AQUI va la variable globar de arreglo de integers de 1000 x 6 que es la MainMemory
+int iMainMemory[1000];
+bool bMainMemory[1000];
+
+//Inicializar en 0 la memoria.
+//bMainMemory=false significa que es Direcciones. true=Datos.
+for(i=0;i<1000;i++)
+{
+  iMainMemory[i]=0;
+  bMainMemory=false;
+}
+
 
 int main()
 {
@@ -146,30 +165,66 @@ void caseCodigoOperacion (int codigoOperacion)
 {
     switch (codigoOperacion)
     {
-    case 0:
-        //Llamar funcion NOP
-        break;
     case 1:
-        //Llamar funcion CLA
+        //Llamar funcion NOP
+        fNOP();
         break;
     case 2:
-        //Llamar funcion NEG
+        //Llamar funcion CLA
         break;
     case 3:
-        //Llamar funcion LDA
+        //Llamar funcion NEG
         break;
     case 4:
-        //Llamar funcion STA
+        //Llamar funcion LDA
         break;
     case 5:
-        //LLamar funcion ADD
+        //Llamar funcion STA
         break;
     case 6:
+        //LLamar funcion ADD
+        break;
+    case 7:
         //LLamar funcion SUB
         break;
-    case 10:
+    case 8:
         //Llamar funcion HLT
         break;
 
     }
+}
+
+void fNOP()
+{
+  //que pierda tiempo.
+}
+
+void fCLA()
+{
+  registroAC=0;
+}
+
+void fNEG()
+{
+  registroAC*=-1;
+}
+
+void fLDA()
+{
+  switch(itipDir)
+  {
+    case 1: 
+    registroAC=iDatoDireccion; 
+    break;
+    case 2: 
+    registroAC=registroPC+iDatoDireccion;
+    break;
+    case 3: break;
+    case 4:
+    registroMAR=iDatoDireccion;
+    registroMDR=MainMemory[iDatoDireccion];
+    
+    
+    break;
+  }
 }
