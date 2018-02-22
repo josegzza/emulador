@@ -4,7 +4,7 @@
 #include "Instruccion.h"
 using namespace std;
 
-//Declaramos 
+//Declaramos
 int revisaCodigoOperacion(string scop);
 int revisaTipoDireccionamiento (string stipDir, int cop);
 int revisaDireccionDato (string sdirDat, int cop);
@@ -18,27 +18,31 @@ void fSUB();
 
 
 void caseCodigoOperacion (int codigoOperacion);
+void fLDA();
 //Variables Globales
 bool errorInstruccion = false;
-int registroPC, registroAC, registroMAR, registroMDR, registroFR,i,z;
+int registroPC, registroAC, registroMAR, registroMDR, registroFR,contador,zeta;
+int icop, itipDir, iDatoDireccion;
 //AQUI va la variable globar de arreglo de integers de 1000 x 6 que es la MainMemory
 int iMainMemory[1000];
 bool bMainMemory[1000];
 
 //Inicializar en 0 la memoria.
 //bMainMemory=false significa que es Direcciones. true=Datos.
-for(i=0;i<1000;i++)
-{
-  iMainMemory[i]=0;
-  bMainMemory=false;
-}
 
 
 int main()
 {
     string scop, stipDir, sdirDat;
-    int icop, itipDir, iDatoDireccion;
+
     bool dato, negativo;
+
+    for(contador=0;contador<1000;contador++)
+    {
+      iMainMemory[contador]=0;
+      bMainMemory[contador]=false;
+    }
+
 
     //INICIO, DONDE EXPLICAMOS COMO INGRESAR LA INSTRUCCION
     cout<<"\tI N I C I O"<<endl;
@@ -104,7 +108,7 @@ int revisaCodigoOperacion(string scop)
 int revisaTipoDireccionamiento (string stipDir, int cop)
 {
     int itipoDir = -1;
-    
+
     //En el caso de que sea un NOP, CLA o HLT no importa que caracter haya puesto
     if ((cop == 0) || (cop == 1) || (cop == 10))
         return itipoDir;
@@ -213,18 +217,18 @@ void fLDA()
 {
   switch(itipDir)
   {
-    case 1: 
-    registroAC=iDatoDireccion; 
+    case 1:
+    registroAC=iDatoDireccion;
     break;
-    case 2: 
+    case 2:
     registroAC=registroPC+iDatoDireccion;
     break;
     case 3: break;
     case 4:
     registroMAR=iDatoDireccion;
-    registroMDR=MainMemory[iDatoDireccion];
-    
-    
+    registroMDR=iMainMemory[iDatoDireccion];
+
+
     break;
   }
 }
