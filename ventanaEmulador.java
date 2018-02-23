@@ -23,16 +23,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
     public void reset()
     {
         //reset de frame
-        DireccionDatoTextField.setText(" ");
-        ac.setText("0");
-        mar.setText("0");
-        mdr.setText("0");
-        pc.setText("0");
-        mmIR.setText("000");
-        mmDireccion.setText("000");
-        cero.setText("F");
-        negativo.setText("F");
-        overflow.setText("F");
+        DireccionDatoTextField.setText("");
         copLista.setSelectedIndex(0);
         tdLista.setSelectedIndex(0);
         
@@ -52,6 +43,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
         registroFRn = false;
         registroFRz = false;
         registroFRo = false;
+        escribirDatos();
     }
     
     //Cambiar los valores por las variables globales que seran...
@@ -63,6 +55,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
         pc.setText(Integer.toString(registroPC));
         mmIR.setText("000");
         mmDireccion.setText("000");
+        
         if(registroFRz)
             cero.setText("V");
         else
@@ -78,13 +71,52 @@ public class ventanaEmulador extends javax.swing.JFrame {
         else
             overflow.setText("F");
         
+        contenidoDireccion.setText(Integer.toString(iMainMemory[registroPC]));
+        ir.setText(DireccionDatoTextField.getText());
+        
     }
     
+    public void imprimirIR()
+    {
+        int icop, itipDir;
+        String irTemporal ="";
+        
+        icop = copLista.getSelectedIndex();
+        itipDir = tdLista.getSelectedIndex();
+        
+    switch (icop)
+    {
+        case 0: irTemporal = "";        break;
+        case 1: irTemporal = "NOP   ";    break;
+        case 2: irTemporal = "CLA   ";    break;
+        case 3: irTemporal = "NEG   ";    break;
+        case 4: irTemporal = "LDA   ";    break;
+        case 5: irTemporal = "STA   ";    break;
+        case 6: irTemporal = "ADD   ";    break;
+        case 7: irTemporal = "SUB   ";    break;
+        case 8: irTemporal = "HLT   ";    break;
+    }
+    switch(itipDir)
+    {
+        case 0: irTemporal = "";            break;
+        case 1: irTemporal += "Inmediato  ";  break;
+        case 2: irTemporal += "Relativo  ";   break;
+        case 3: irTemporal += "Absoluto  ";   break;
+        case 4: irTemporal += "Indirecto  ";  break;
+    }
+    if(icop == 0 || itipDir == 0)
+        irTemporal = "";
+    else
+        irTemporal += DireccionDatoTextField.getText();
+
+    
+    ir.setText(irTemporal);
+    }
     
     //lo equivalente a el MAIN en c++
     public ventanaEmulador() {
         initComponents();
-        //Llamar funcion de resetear
+        //Llamar funcion de resetear¿? maybee....
     }
 
     /**
@@ -270,9 +302,11 @@ public class ventanaEmulador extends javax.swing.JFrame {
     }                                       
 
     private void botonOkMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        //Declaramos variables de esta funcion
         int icop;
         int itipDir;
         int iDatoDireccion;
+        
         String direccionDato;
         
         errorInstruccion = false;
@@ -295,9 +329,8 @@ public class ventanaEmulador extends javax.swing.JFrame {
             errorInstruccion = true;
             iDatoDireccion = 0;
         }
-        
-        //Funcion de actualizar todas las "variables globales"
-        //FUncion de reset
+        if( ( (icop >= 1) && (icop <= 3) ) || (icop == 8) )
+            errorInstruccion = false;
         
         
         if (!errorInstruccion)
@@ -307,36 +340,48 @@ public class ventanaEmulador extends javax.swing.JFrame {
             System.out.println(itipDir);
             System.out.println(direccionDato);
             System.out.println(iDatoDireccion);
-
-
+            
+            imprimirIR();
 
             switch (icop)
             {
             case 0:
-                //Llamar funcion NOP
+                //Llamar funcion ¿?
                 break;
             case 1:
-                //Llamar funcion NOP
+                //NOP
+                try{
+                    System.out.println("DELAY");
+                    Thread.sleep(2000);
+                }
+                catch(InterruptedException e){}
                 break;
             case 2:
-                //Llamar funcion CLA
+                //CLA
+                registroAC = 0;
                 break;
             case 3:
-                //Llamar funcion NEG
+                //NEG
+                registroAC *= -1;
                 break;
             case 4:
+                
                 //Llamar funcion LDA
                 break;
             case 5:
+                
                 //LLamar funcion STA
                 break;
             case 6:
+                
                 //LLamar funcion ADD
                 break;
             case 7:
+                
                 //Llamar funcion SUB
                 break;
             case 8:
+                
                 //Llamar funcion HLT
                 break;
             }
