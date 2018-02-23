@@ -194,10 +194,6 @@ void caseCodigoOperacion (int codigoOperacion)
         //LLamar funcion SUB
         fSUB();
         break;
-    case 8:
-        //Llamar funcion HLT
-        break;
-
     }
 }
 
@@ -225,14 +221,22 @@ void fLDA()
     registroAC=iDatoDireccion;
     break;
     case 2:
-    registroAC=registroPC+iDatoDireccion;
+    registroMAR=registroPC+iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC=registroMDR;
     break;
     case 3: 
-    registro
+    registroMAR=iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC=registroMDR;
     break;
     case 4:
     registroMAR=iDatoDireccion;
-    registroMDR=iMainMemory[iDatoDireccion];
+    registroMDR=iMainMemory[registroMAR];
+    //Delay
+    registroMAR=registroMDR;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC=registroMDR;
     break;
   }
 }
@@ -252,9 +256,24 @@ void fADD()
   swtich(itipDir)
   {
     case 1:registroAC+=iDatoDireccion; break;
-    case 2:break;
-    case 3:break;
-    case 4:break;
+    case 2:
+    registroMAR=registroPC+iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC+=registroMDR;
+    break;
+    case 3:
+    registroMAR=iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC+=registroMDR;
+    break;
+    case 4:
+    registroMAR=iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    //Delay
+    registroMAR=registroMDR;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC+=registroMDR;
+    break;
   }
 }
 
@@ -263,8 +282,23 @@ void fSUB()
   swtich(itipDir)
   {
     case 1: registroAC-=iDatoDireccion;break;
-    case 2:break;
-    case 3:break;
-    case 4:break;
+    case 2:
+    registroMAR=registroPC+iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC-=registroMDR;
+    break;
+    case 3:
+    registroMAR=iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC-=registroMDR;
+    break;
+    case 4:
+    registroMAR=iDatoDireccion;
+    registroMDR=iMainMemory[registroMAR];
+    //Delay
+    registroMAR=registroMDR;
+    registroMDR=iMainMemory[registroMAR];
+    registroAC-=registroMDR;
+    break;
   }
 }
