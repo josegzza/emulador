@@ -171,26 +171,28 @@ void caseCodigoOperacion (int codigoOperacion)
     switch (codigoOperacion)
     {
     case 1:
-        //Llamar funcion NOP
         fNOP();
         break;
     case 2:
-        //Llamar funcion CLA
+        fCLA();
         break;
     case 3:
-        //Llamar funcion NEG
+        fNEG();
         break;
     case 4:
-        //Llamar funcion LDA
+        fLDA();
         break;
     case 5:
         //Llamar funcion STA
+        fSTA();
         break;
     case 6:
         //LLamar funcion ADD
+        fADD();
         break;
     case 7:
         //LLamar funcion SUB
+        fSUB();
         break;
     case 8:
         //Llamar funcion HLT
@@ -214,6 +216,7 @@ void fNEG()
   registroAC*=-1;
 }
 
+
 void fLDA()
 {
   switch(itipDir)
@@ -224,12 +227,44 @@ void fLDA()
     case 2:
     registroAC=registroPC+iDatoDireccion;
     break;
-    case 3: break;
+    case 3: 
+    registro
+    break;
     case 4:
     registroMAR=iDatoDireccion;
     registroMDR=iMainMemory[iDatoDireccion];
-
-
     break;
+  }
+}
+
+void fSTA()
+{
+  switch(itipDir)
+  {
+    case 2:break;
+    case 3:break;
+    case 4:break;
+  }
+}
+
+void fADD()
+{
+  swtich(itipDir)
+  {
+    case 1:registroAC+=iDatoDireccion; break;
+    case 2:break;
+    case 3:break;
+    case 4:break;
+  }
+}
+
+void fSUB()
+{
+  swtich(itipDir)
+  {
+    case 1: registroAC-=iDatoDireccion;break;
+    case 2:break;
+    case 3:break;
+    case 4:break;
   }
 }
