@@ -21,8 +21,9 @@ void caseCodigoOperacion (int codigoOperacion);
 void fLDA();
 //Variables Globales
 bool errorInstruccion = false;
-int registroPC, registroAC, registroMAR, registroMDR, registroFR,contador,zeta;
+int registroPC, registroAC, registroMAR, registroMDR,contador,zeta;
 int icop, itipDir, iDatoDireccion;
+bool registroFRn, registroFRz, registroFRo;
 //AQUI va la variable globar de arreglo de integers de 1000 x 6 que es la MainMemory
 int iMainMemory[1000];
 bool bMainMemory[1000];
