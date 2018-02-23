@@ -252,10 +252,9 @@ void fSTA()
     iMainMemory[registroAC]=registroMDR;
     break;
     case 3:
-    registroMAR=iDatoDireccion;
-    registroAC=iMainMemory[registroMAR];
-    registroMDR=registroAC;
-    iMainMemory[registroAC]=registroMDR;
+    registroMAR = iDatoDireccion;
+    registroMDR = registroAC;
+    iMainMemory[registroMAR] = registroMDR;
     break;
     case 4:
     registroMAR=iDatoDireccion;
@@ -320,3 +319,4 @@ void fSUB()
     break;
   }
 }
+
