@@ -245,9 +245,27 @@ void fSTA()
 {
   switch(itipDir)
   {
-    case 2:break;
-    case 3:break;
-    case 4:break;
+    case 2: 
+    registroMAR=registroPC+iDatoDireccion;
+    registroAC=iMainMemory[registroMAR];
+    registroMDR=registroAC;
+    iMainMemory[registroAC]=registroMDR;
+    break;
+    case 3:
+    registroMAR=iDatoDireccion;
+    registroAC=iMainMemory[registroMAR];
+    registroMDR=registroAC;
+    iMainMemory[registroAC]=registroMDR;
+    break;
+    case 4:
+    registroMAR=iDatoDireccion;
+    registroAC=iMainMemory[registroMAR];
+    registroMDR=registroAC;
+    //Delay
+    registroMAR=registroMDR;
+    registroAC=iMainMemory[registroMAR];
+    registroMDR=registroAC;
+    break;
   }
 }
 
