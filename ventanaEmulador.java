@@ -6,7 +6,10 @@
  @desc Programa que simula una memoria de 100 espacions, y se va programando en lenguaje ensamblador
 
  */
+
 package emulador;
+import java.awt.event.ActionListener;
+import javax.swing.Timer;
 
 
 public class ventanaEmulador extends javax.swing.JFrame {
@@ -18,13 +21,13 @@ public class ventanaEmulador extends javax.swing.JFrame {
     int registroPC, registroAC, registroMAR;
     int registroMDR;
     boolean registroFRn, registroFRz, registroFRo;
-        //Arreglos de MM e indicador de si es dato o direccion de memoria
+        //Arreglos de MM e indicador de negativo o positivo
     int iMainMemory[] = new int [1000];
     boolean bMainMemory[] = new boolean [1000];
     /**
-        @funcName reset()
-        @desc Funcion que inicializa todas las etiquetas y pone las variables globales (registros) en su valor inicial
-        Comienza con reseteando donde se elige la instruccion, despues pone los arreglos en 0 y resetea los registros. Finalmente, llama a la funcion escribir datos
+@funcName reset()
+     @desc Funcion que inicializa todas las etiquetas y pone las variables globales (registros) en su valor inicial
+     Comienza con reseteando donde se elige la instruccion, despues pone los arreglos en 0 y resetea los registros. Finalmente, llama a la funcion escribir datos
     */
     public void reset()
     {
@@ -37,7 +40,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
         for(int i = 0; i < 1000; i++)
         {
             iMainMemory[i]=0;
-            bMainMemory[i]=false;
+            bMainMemory[i]=false;   //todos los numeros son positivos
         }
         
         //reset de variables/registros
@@ -50,9 +53,13 @@ public class ventanaEmulador extends javax.swing.JFrame {
         registroFRz = false;
         registroFRo = false;
         escribirDatos();
+        mmDireccion.setText("000");
+        
+        contenidoDireccion.setText(Integer.toString(iMainMemory[registroPC]));
+        ir.setText(DireccionDatoTextField.getText());
     }
     /**
-     @funcName escribirDatos()
+@funcName escribirDatos()
      @desc Funcion que actualiza las etiquetas del frame, en base a lo que digan las variables globales (registros).
      */
     public void escribirDatos()
@@ -61,8 +68,9 @@ public class ventanaEmulador extends javax.swing.JFrame {
         mar.setText(Integer.toString(registroMAR));
         mdr.setText(Integer.toString(registroMDR));
         pc.setText(Integer.toString(registroPC));
-        mmIR.setText("000");
-        mmDireccion.setText("000");
+        
+        //mmIR.setText("000");
+        mmDireccion.setText(Integer.toString(registroPC-1));
         
         if(registroFRz)
             cero.setText("V");
@@ -79,12 +87,12 @@ public class ventanaEmulador extends javax.swing.JFrame {
         else
             overflow.setText("F");
         
-        contenidoDireccion.setText(Integer.toString(iMainMemory[registroPC]));
-        ir.setText(DireccionDatoTextField.getText());
+        contenidoDireccion.setText(Integer.toString(iMainMemory[registroPC-1]));
+        //ir.setText(DireccionDatoTextField.getText());
         
     }
     /**
-     @funcName imprimirIR()
+@funcName imprimirIR()
      @desc Función que en base a lo elegido como instrucción, pasa eso a forma de texto para mostrarlo en la etiqueta de IR
      En el caso de que sea NOP, CLA, NEG o HLT, ignora lo demas
      */
@@ -125,7 +133,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
     ir.setText(irTemporal);
     }
     /**
-     @funcName revisaFR
+@funcName revisaFR
      @desc Funcion que revisa el acumulador para verificar si una bandera deberia ser verdadero
      */
     public void revisaFR()
@@ -142,8 +150,29 @@ public class ventanaEmulador extends javax.swing.JFrame {
         //Caso en el que sea overflow
     }
     
+    
+    
+    private void doLogin() {
+        Timer delay = new Timer(3000, new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comentarios.setText("Algo raro si esta funcionado");
+               // displayNextFrame();
+            }
+       });
+       
+        delay.setRepeats(false);
+        delay.start();
+        
+    }
+
+    
+    
+    
+    
     /**
-     @funcName fLDA()
+@funcName fLDA()
      @desc Funcion que ejecuta las micro-operaciones de la operacion LDA
      dentro de esta función varia para el tipo de direccionamiento que tiene
      */
@@ -156,29 +185,81 @@ public class ventanaEmulador extends javax.swing.JFrame {
                 break;
             case 1:
                 //Inmediato
-                if((iDatoDireccion > 99) || (iDatoDireccion < -99))
-                {
+                if((iDatoDireccion > 99) || (iDatoDireccion < -99)) {
                     System.out.println("Error, de ingreso de dato... LDA INM");
                 }
-                else
-                registroAC = iDatoDireccion;
+                else {
+                    registroAC = iDatoDireccion;
+                    contenidoDireccion.setText(Integer.toString(iMainMemory[registroPC-1]));
+                    mmDireccion.setText(Integer.toString(registroPC - 1));
+                }
+                
                 break;
             case 2:
                 //Relativo
+                //Obligatoriamente aqui tiene que dar una direccion, por lo tanto debe ser >0
+                if(iDatoDireccion > 0) {
+                    registroMAR = registroPC+iDatoDireccion;
+                    registroMDR = iMainMemory[registroMAR];
+                    registroAC = registroMDR;
+                }
+                else {
+                    comentarios.setText("La dirección ingresada no es válida");
+                    errorInstruccion = true;
+                    registroPC--;
+                }
+                
                 break;
             case 3:
                 //Absoluto
+                //Obligatoriamente aqui tiene que dar una direccion, por lo tanto debe ser >0
+                if(iDatoDireccion > 0) {
+                    registroMAR=iDatoDireccion;
+                    registroMDR=iMainMemory[registroMAR];
+                    registroAC=registroMDR;
+                }
+                else {
+                    comentarios.setText("La dirección ingresada no es válida");
+                    errorInstruccion = true;
+                    registroPC--;
+                }
+                
                 break;
             case 4:
                 //Indirecto
+                if(iDatoDireccion > 0) {
+                    registroMAR = iDatoDireccion;
+                    registroMDR = iMainMemory[registroMAR];
+                    ac.setText(Integer.toString(registroAC));
+                    mar.setText(Integer.toString(registroMAR));
+                    mdr.setText(Integer.toString(registroMDR));
+                    //Se crea un delay para alcanzar a visualizar los datos, de las micro-operaciones                  
+                    Timer delay = new Timer(2000, new ActionListener()  {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            registroMAR = registroMDR;
+                            registroMDR = iMainMemory[registroMAR];
+                            registroAC = registroMDR;
+                            ac.setText(Integer.toString(registroAC));
+                            mar.setText(Integer.toString(registroMAR));
+                            mdr.setText(Integer.toString(registroMDR));
+                        }
+                   });
+                    delay.setRepeats(false);
+                    delay.start();
+                }
+                else {
+                    comentarios.setText("La dirección ingresada no es válida");
+                    errorInstruccion = true;
+                    registroPC--;
+                }
                 break;
         }
     }
     
-    
-    
+   
     /**
-     @funcName ventanaEmulador()
+@funcName ventanaEmulador()
      @desc Función que inicializa el frame y sus componentes, esta es la primera función en ejecutarse al inicial el programa
      */
     //lo equivalente a el MAIN en c++
@@ -208,7 +289,6 @@ public class ventanaEmulador extends javax.swing.JFrame {
         mdr = new javax.swing.JLabel();
         pc = new javax.swing.JLabel();
         ir = new javax.swing.JLabel();
-        mmIR = new javax.swing.JLabel();
         mmLabel = new javax.swing.JLabel();
         mmDireccion = new javax.swing.JLabel();
         contenidoDireccion = new javax.swing.JLabel();
@@ -222,6 +302,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
         copLista = new javax.swing.JComboBox<>();
         tdLista = new javax.swing.JComboBox<>();
         botonReset = new javax.swing.JButton();
+        comentarios = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(800, 800));
@@ -281,10 +362,6 @@ public class ventanaEmulador extends javax.swing.JFrame {
         ir.setText("COP TD Dir/Dato");
         getContentPane().add(ir);
         ir.setBounds(170, 80, 115, 39);
-
-        mmIR.setText("000");
-        getContentPane().add(mmIR);
-        mmIR.setBounds(110, 80, 39, 39);
 
         mmLabel.setText("MM");
         getContentPane().add(mmLabel);
@@ -358,6 +435,11 @@ public class ventanaEmulador extends javax.swing.JFrame {
         getContentPane().add(botonReset);
         botonReset.setBounds(20, 400, 90, 40);
 
+        comentarios.setToolTipText("");
+        comentarios.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        getContentPane().add(comentarios);
+        comentarios.setBounds(230, 490, 350, 60);
+
         pack();
     }// </editor-fold>                        
 
@@ -369,48 +451,38 @@ public class ventanaEmulador extends javax.swing.JFrame {
         // TODO add your handling code here:
     }                                       
 
-/**
+    /**
 @funcName botonOkMouseClicked
-@desc Funcion que es llamada al presionar el boton de Ok
-En esta función, primero revisa que lo ingresado como intrucción sea valido, en caso de que no sea valido, cambia un booleano para despues no ejecutar un switch que llama
-a la funcion correspondiente en base a su codigo de operacion.
-@param evt 
- */    
+    @desc Funcion que es llamada al presionar el boton de Ok
+    En esta función, primero revisa que lo ingresado como intrucción sea valido, en caso de que no sea valido, cambia un booleano para despues no ejecutar un switch que llama
+    a la funcion correspondiente en base a su codigo de operacion.
+    @param evt 
+     */    
     private void botonOkMouseClicked(java.awt.event.MouseEvent evt) {                                     
         //Declaramos variables de esta funcion
-
-        
-        
         String direccionDato;
-        
+        comentarios.setText("");
         errorInstruccion = false;
         direccionDato = DireccionDatoTextField.getText();
         itipDir = tdLista.getSelectedIndex();
         icop = copLista.getSelectedIndex();
         
-        //Revisa que lo ingresado sea un numero
-        try {
-            iDatoDireccion = Integer.parseInt(direccionDato);
-        } catch (NumberFormatException e){
-            System.out.println("Error");
-            errorInstruccion = true;
-            iDatoDireccion = 0;
-        }
-        //Revisa que el numero ingresado sea dentro de lo posible
-        if ((iDatoDireccion > 999) || (iDatoDireccion < -99))
-        {
-            System.out.println("Error");
-            errorInstruccion = true;
-            iDatoDireccion = 0;
-        }
-        if( ( (icop >= 1) && (icop <= 3) ) || (icop == 8) )
-            errorInstruccion = false;
+        validacionBasica(direccionDato);
+        
         
         
         if (!errorInstruccion)
         {
+            if(iDatoDireccion  < 0)
+            {
+                bMainMemory[registroPC] = true;
+                iDatoDireccion *= -1;
+            }
             //Convertimos la instrucción a como sera almacenada en el arreglo y almacenamos
             iMainMemory[registroPC] = ((icop*10000) + (itipDir*1000) + iDatoDireccion);
+            if(bMainMemory[registroPC])
+                iDatoDireccion *= -1;
+            
             registroPC++;
 
             pc.setText(Integer.toString(registroPC));
@@ -418,16 +490,9 @@ a la funcion correspondiente en base a su codigo de operacion.
 
             switch (icop)
             {
-            case 0:
-                //Llamar funcion ¿?
-                break;
             case 1:
                 //NOP
-                try{
-                    System.out.println("DELAY");
-                    Thread.sleep(2000);
-                }
-                catch(InterruptedException e){}
+                delay();
                 break;
             case 2:
                 //CLA
@@ -442,10 +507,11 @@ a la funcion correspondiente en base a su codigo de operacion.
                 break;
             case 4:
                 //LDA
+                System.out.println(iDatoDireccion);
                 fLDA();
                 break;
             case 5:
-                
+                //fSTA();
                 //LLamar funcion STA
                 break;
             case 6:
@@ -471,11 +537,11 @@ a la funcion correspondiente en base a su codigo de operacion.
         
         
     }                                    
-/**
- @funcName botonResetMouseClicked
- @desc Funcion que cuando el boton de reset es presionado, manda a llamar a la función reset()
- @param evt 
- */
+    /**
+@funcName botonResetMouseClicked
+     @desc Funcion que cuando el boton de reset es presionado, manda a llamar a la función reset()
+     @param evt 
+     */
     private void botonResetMouseClicked(java.awt.event.MouseEvent evt) {                                        
         reset();
 
@@ -519,6 +585,55 @@ a la funcion correspondiente en base a su codigo de operacion.
             }
         });
     }
+    /**
+@funcName delay()
+    @desc Funcion que congela la pantalla durante 2 segundos
+    */
+    public void delay()
+    {
+        try{
+            Thread.sleep(1000);
+        }
+        catch(InterruptedException e){}
+    }
+    
+    /**
+@funcName validacionBasica(String direccionDato)
+     @desc Función que valida lo ingresado en la casilla de Dir/Dato o en los casos de COP, HLT, NEG, CLA o NOP ignora las demas casillas
+     @param direccionDato 
+     */
+    public void validacionBasica(String direccionDato)
+    {
+        //Revisa que lo ingresado sea un numero
+        try {
+            iDatoDireccion = Integer.parseInt(direccionDato);
+        } catch (NumberFormatException e){
+            comentarios.setText("Valor ingresado erroeno, favor de verificarlo");
+            System.out.println("Error");
+            errorInstruccion = true;
+            iDatoDireccion = 0;
+        }
+        //Revisa que el numero ingresado sea dentro de lo posible
+        if ((iDatoDireccion > 999) || (iDatoDireccion < -99)) {
+            comentarios.setText("Valor ingresado erroeno, favor de verificarlo");
+            System.out.println("Error");
+            errorInstruccion = true;
+            iDatoDireccion = 0;
+        }
+        //Si tipo de Direccionamiento es 0, diagmos no eligio una opcion, es un error
+        if(itipDir == 0) {
+            comentarios.setText("Tipo de Direccionamiento Invalido");
+            errorInstruccion = true;
+        }
+        //Si el tipo de direccion es inmediado, obligatoriamente debe ser un dato (checa que este dentro del rango)
+        if((itipDir == 1) && ((iDatoDireccion<-99) || (iDatoDireccion>99))) {
+            errorInstruccion = true;
+            comentarios.setText("El dato ingresado, no es válido");
+        }
+        //Si es uno de COP, HLT, NEG, CLA o NOP
+        if( ( (icop >= 1) && (icop <= 3) ) || (icop == 8) )
+            errorInstruccion = false;
+    }
 
     // Variables declaration - do not modify                     
     private javax.swing.JTextField DireccionDatoTextField;
@@ -528,6 +643,7 @@ a la funcion correspondiente en base a su codigo de operacion.
     private javax.swing.JButton botonReset;
     private javax.swing.JLabel cero;
     private javax.swing.JLabel ceroLabel;
+    private javax.swing.JLabel comentarios;
     private javax.swing.JLabel contenidoDireccion;
     private javax.swing.JComboBox<String> copLista;
     private javax.swing.JLabel frLabel;
@@ -538,7 +654,6 @@ a la funcion correspondiente en base a su codigo de operacion.
     private javax.swing.JLabel mdr;
     private javax.swing.JLabel mdrLabel;
     private javax.swing.JLabel mmDireccion;
-    private javax.swing.JLabel mmIR;
     private javax.swing.JLabel mmLabel;
     private javax.swing.JLabel negativo;
     private javax.swing.JLabel negativoLabel;
