@@ -9,6 +9,7 @@
 
 package emulador;
 import java.awt.event.ActionListener;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 
@@ -45,7 +46,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
         
         //reset de variables/registros
         errorInstruccion = false;
-        registroPC = 0;
+        registroPC = 1;
         registroAC = 0;
         registroMAR = 0;
         registroMDR = 0;
@@ -53,7 +54,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
         registroFRz = false;
         registroFRo = false;
         escribirDatos();
-        mmDireccion.setText("000");
+        mmDireccion.setText("0");
         
         contenidoDireccion.setText(Integer.toString(iMainMemory[registroPC]));
         ir.setText(DireccionDatoTextField.getText());
@@ -152,46 +153,24 @@ public class ventanaEmulador extends javax.swing.JFrame {
     
     
     
-    private void doLogin() {
-        Timer delay = new Timer(3000, new ActionListener() 
-        {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comentarios.setText("Algo raro si esta funcionado");
-               // displayNextFrame();
-            }
-       });
-       
-        delay.setRepeats(false);
-        delay.start();
-        
-    }
-
-    
-    
     
     
     /**
 @funcName fLDA()
      @desc Funcion que ejecuta las micro-operaciones de la operacion LDA
-     dentro de esta función varia para el tipo de direccionamiento que tiene
+     dentro de esta función varia para el tipo de direccionamiento que tiene.
      */
     public void fLDA()
     {
         switch(itipDir)
         {
-            case 0:
-                System.out.println("Error LDA, caso 0 de TD... no deberia nunca llegar aqui");
-                break;
             case 1:
                 //Inmediato
                 if((iDatoDireccion > 99) || (iDatoDireccion < -99)) {
-                    System.out.println("Error, de ingreso de dato... LDA INM");
+                    comentarios.setText("Favor de ingresar un dato entre -99 y 99");
                 }
                 else {
                     registroAC = iDatoDireccion;
-                    contenidoDireccion.setText(Integer.toString(iMainMemory[registroPC-1]));
-                    mmDireccion.setText(Integer.toString(registroPC - 1));
                 }
                 
                 break;
@@ -229,10 +208,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
                 //Indirecto
                 if(iDatoDireccion > 0) {
                     registroMAR = iDatoDireccion;
-                    registroMDR = iMainMemory[registroMAR];
-                    ac.setText(Integer.toString(registroAC));
-                    mar.setText(Integer.toString(registroMAR));
-                    mdr.setText(Integer.toString(registroMDR));
+                    registroMDR = iMainMemory[registroMAR];                   
                     //Se crea un delay para alcanzar a visualizar los datos, de las micro-operaciones                  
                     Timer delay = new Timer(2000, new ActionListener()  {
                         @Override
@@ -245,8 +221,8 @@ public class ventanaEmulador extends javax.swing.JFrame {
                             mdr.setText(Integer.toString(registroMDR));
                         }
                    });
-                    delay.setRepeats(false);
-                    delay.start();
+                   delay.setRepeats(false);
+                   delay.start();
                 }
                 else {
                     comentarios.setText("La dirección ingresada no es válida");
@@ -257,22 +233,231 @@ public class ventanaEmulador extends javax.swing.JFrame {
         }
     }
     
+    /**
+@funcName fSTA
+     @desc Funcion que ejecuta las micro-operaciones de la operacion STA
+     dentro de esta función varia para el tipo de direccionamiento que tenga
+     */
+    public void fSTA()
+    {
+        switch(itipDir)
+        {
+          case 2:
+             //Relativo
+              if(iDatoDireccion > 0) {
+                    registroMAR = registroPC + iDatoDireccion;
+                    registroMDR = registroAC;
+                    iMainMemory[registroMAR] = registroMDR;
+                }
+                else {
+                    comentarios.setText("La dirección ingresada no es válida");
+                    errorInstruccion = true;
+                    registroPC--;
+                }
+                break;
+          case 3:
+              //Absoluto
+                //Obligatoriamente aqui tiene que dar una direccion, por lo tanto debe ser >0
+                if(iDatoDireccion > 0) {
+                    registroMAR = iDatoDireccion;
+                    registroMDR = registroAC;
+                    iMainMemory[registroMAR] = registroMDR;
+                }
+                else {
+                    comentarios.setText("La dirección ingresada no es válida");
+                    errorInstruccion = true;
+                    registroPC--;
+                }
+                
+                break;
+          case 4:
+              //Indirecto
+                if(iDatoDireccion > 0) {
+                    registroMAR = iDatoDireccion;
+                    registroMDR = iMainMemory[registroMAR];
+                    registroAC = registroMDR;
+                    //Delay
+                    Timer delay = new Timer(2000, new ActionListener()  {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            registroMAR = registroMDR;
+                            registroMDR = iMainMemory[registroMAR];
+                            registroAC = registroMDR;
+                            iMainMemory[registroMAR] = registroMDR;
+                            ac.setText(Integer.toString(registroAC));
+                            mar.setText(Integer.toString(registroMAR));
+                            mdr.setText(Integer.toString(registroMDR));
+                        }
+                    });
+                    delay.setRepeats(false);
+                    delay.start();
+                }
+                else {
+                    comentarios.setText("La dirección ingresada no es válida");
+                    errorInstruccion = true;
+                    registroPC--;
+                }
+                
+                break;
+        }
+    }
+    /**
+@funcName fADD
+     @desc Funcion que ejecuta las micro-operaciones de la operacion ADD
+     dentro de esta función varia para el tipo de direccionamiento que tenga
+     */
+    public void fADD()
+    {
+        switch(itipDir)
+        {
+        case 1:     //Inmediato
+            if((iDatoDireccion > 99) || (iDatoDireccion < -99)) {
+                comentarios.setText("Favor de ingresar un dato entre -99 y 99");
+            }
+            else {
+                registroAC+=iDatoDireccion;
+            }
+            
+            break;
+        case 2:     //Relativo
+            if(iDatoDireccion > 0) {
+                registroMAR = registroPC + iDatoDireccion;
+                registroMDR = iMainMemory[registroMAR];
+                registroAC += registroMDR;
+            }
+            else {
+                comentarios.setText("La dirección ingresada no es válida");
+                errorInstruccion = true;
+                registroPC--;
+            }
+            break;
+        case 3:     //Absoluto
+            if(iDatoDireccion > 0) {
+                registroMAR = iDatoDireccion;
+                registroMDR = iMainMemory[registroMAR];
+                registroAC += registroMDR;
+            }
+            else {
+                comentarios.setText("La dirección ingresada no es válida");
+                errorInstruccion = true;
+                registroPC--;
+            }
+            
+            break;
+        case 4:     //Indirecto
+            if(iDatoDireccion > 0) {
+                registroMAR = iDatoDireccion;
+                registroMDR = iMainMemory[registroMAR];
+                //Delay
+                Timer delay = new Timer(2000, new ActionListener()  {
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        registroMAR = registroMDR;
+                        registroMDR = iMainMemory[registroMAR];
+                        registroAC += registroMDR;
+                        ac.setText(Integer.toString(registroAC));
+                        mar.setText(Integer.toString(registroMAR));
+                        mdr.setText(Integer.toString(registroMDR));
+                    }
+                });
+                delay.setRepeats(false);
+                delay.start();
+            }
+            else {
+                comentarios.setText("La dirección ingresada no es válida");
+                errorInstruccion = true;
+                registroPC--;
+            }
+            break;
+        }
+    }
+    
+    /**
+@funcName fSUB
+     @desc Funcion que ejecuta las micro-operaciones de la operacion SUB
+     dentro de esta función varia para el tipo de direccionamiento que tenga
+     */
+    public void fSUB ()
+    {
+        switch(itipDir)
+        {
+        case 1:     //Inmediato
+            if((iDatoDireccion > 99) || (iDatoDireccion < -99)) {
+                comentarios.setText("Favor de ingresar un dato entre -99 y 99");
+            }
+            else {
+                registroAC -= iDatoDireccion;
+            }
+            
+            break;
+        case 2:     //Relativo
+            if(iDatoDireccion > 0) {
+                registroMAR = registroPC + iDatoDireccion;
+                registroMDR = iMainMemory[registroMAR];
+                registroAC -= registroMDR;
+            }
+            else {
+                comentarios.setText("La dirección ingresada no es válida");
+                errorInstruccion = true;
+                registroPC--;
+            }
+            break;
+        case 3:     //Absoluto
+            if(iDatoDireccion > 0) {
+                registroMAR = iDatoDireccion;
+                registroMDR = iMainMemory[registroMAR];
+                registroAC -= registroMDR;
+            }
+            else {
+                comentarios.setText("La dirección ingresada no es válida");
+                errorInstruccion = true;
+                registroPC--;
+            }
+            
+            break;
+        case 4:     //Indirecto
+            if(iDatoDireccion > 0) {
+                registroMAR = iDatoDireccion;
+                registroMDR = iMainMemory[registroMAR];
+                //Delay
+                Timer delay = new Timer(2000, new ActionListener()  {
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        registroMAR = registroMDR;
+                        registroMDR = iMainMemory[registroMAR];
+                        registroAC -= registroMDR;
+                        ac.setText(Integer.toString(registroAC));
+                        mar.setText(Integer.toString(registroMAR));
+                        mdr.setText(Integer.toString(registroMDR));
+                    }
+                });
+                delay.setRepeats(false);
+                delay.start();
+            }
+            else {
+                comentarios.setText("La dirección ingresada no es válida");
+                errorInstruccion = true;
+                registroPC--;
+            }
+            break;
+        }
+    }
+    
+    
+    
+    
    
     /**
 @funcName ventanaEmulador()
      @desc Función que inicializa el frame y sus componentes, esta es la primera función en ejecutarse al inicial el programa
      */
-    //lo equivalente a el MAIN en c++
     public ventanaEmulador() {
         initComponents();
-        //Llamar funcion de resetear¿? maybee....
+        reset();
+        registroPC = 0;
     }
 
-    /*
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
@@ -454,8 +639,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
     /**
 @funcName botonOkMouseClicked
     @desc Funcion que es llamada al presionar el boton de Ok
-    En esta función, primero revisa que lo ingresado como intrucción sea valido, en caso de que no sea valido, cambia un booleano para despues no ejecutar un switch que llama
-    a la funcion correspondiente en base a su codigo de operacion.
+    En esta función, primero revisa que lo ingresado como intrucción sea valido, en caso de que no sea valido, cambia un booleano para despues no ejecutar un switch que llama a la funcion correspondiente en base a su codigo de operacion.
     @param evt 
      */    
     private void botonOkMouseClicked(java.awt.event.MouseEvent evt) {                                     
@@ -490,44 +674,39 @@ public class ventanaEmulador extends javax.swing.JFrame {
 
             switch (icop)
             {
-            case 1:
-                //NOP
+            case 1:     //NOP
                 delay();
+                comentarios.setText("");
                 break;
-            case 2:
-                //CLA
+            case 2:     //CLA
                 registroAC = 0;
+                comentarios.setText("");
                 ac.setText(Integer.toString(registroAC));
-                
                 break;
-            case 3:
-                //NEG
+            case 3:     //NEG
                 registroAC *= -1;
-                ac.setText(Integer.toString(registroAC));
+                comentarios.setText("");
                 break;
-            case 4:
-                //LDA
-                System.out.println(iDatoDireccion);
+            case 4:     //LDA
                 fLDA();
                 break;
-            case 5:
-                //fSTA();
-                //LLamar funcion STA
+            case 5:     //STA
+                fSTA();
                 break;
-            case 6:
-                
-                //LLamar funcion ADD
+            case 6:     //ADD
+                fADD();
                 break;
-            case 7:
-                
-                //Llamar funcion SUB
+            case 7:     //SUB
+                fSUB();
                 break;
-            case 8:
+            case 8:     //HLT
+                comentarios.setText("");
+                JOptionPane.showMessageDialog(this, "Finalizo ejecucion, al cerrar esta ventana se resetarea la ventana principal", "HLT", JOptionPane.PLAIN_MESSAGE);
+                registroPC = 0;
+                reset();
                 
-                //Llamar funcion HLT
                 break;
             }
-            
             revisaFR();
             escribirDatos();
         }
@@ -544,7 +723,7 @@ public class ventanaEmulador extends javax.swing.JFrame {
      */
     private void botonResetMouseClicked(java.awt.event.MouseEvent evt) {                                        
         reset();
-
+        registroPC = 0;
     }                                       
 
     private void botonResetActionPerformed(java.awt.event.ActionEvent evt) {                                           
@@ -609,14 +788,12 @@ public class ventanaEmulador extends javax.swing.JFrame {
             iDatoDireccion = Integer.parseInt(direccionDato);
         } catch (NumberFormatException e){
             comentarios.setText("Valor ingresado erroeno, favor de verificarlo");
-            System.out.println("Error");
             errorInstruccion = true;
             iDatoDireccion = 0;
         }
         //Revisa que el numero ingresado sea dentro de lo posible
         if ((iDatoDireccion > 999) || (iDatoDireccion < -99)) {
             comentarios.setText("Valor ingresado erroeno, favor de verificarlo");
-            System.out.println("Error");
             errorInstruccion = true;
             iDatoDireccion = 0;
         }
